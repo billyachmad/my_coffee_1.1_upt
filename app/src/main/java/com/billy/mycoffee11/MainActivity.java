@@ -1,46 +1,60 @@
 package com.billy.mycoffee11;
 
-import android.annotation.TargetApi;
+import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.webkit.WebResourceError;
-import android.webkit.WebResourceRequest;
+import android.view.KeyEvent;
+import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Toast;
+import android.widget.ProgressBar;
 
 public class MainActivity extends AppCompatActivity {
-    private WebView webViewSaya;
+    WebView webView;
+    ProgressBar bar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.webview);
+        webView = (WebView) findViewById(R.id.webView);
+        bar=(ProgressBar) findViewById(R.id.progressBar2);
+        webView.setWebViewClient(new myWebclient());
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.loadUrl("http://mycoffee.rf.gd/");
 
-        // panggil konstruktor
-        webViewSaya = new WebView(this);
 
-        // aktifkan javascript
-        webViewSaya.getSettings().setJavaScriptEnabled(true);
+    }
 
-        // atur klien
-        webViewSaya.setWebViewClient(new WebViewClient() {
-            @SuppressWarnings("deprecation")
-            @Override
-            public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-                Toast.makeText(getApplicationContext(), description, Toast.LENGTH_SHORT).show();
-            }
-            @TargetApi(android.os.Build.VERSION_CODES.M)
-            @Override
-            public void onReceivedError(WebView view, WebResourceRequest req, WebResourceError rerr) {
-                // Redirect to deprecated method, so you can use it in all SDK versions
-                onReceivedError(view, rerr.getErrorCode(), rerr.getDescription().toString(), req.getUrl().toString());
-            }
-        });
+    public class myWebclient extends WebViewClient{
+        @Override
+        public void onPageFinished(WebView view, String url) {
+            super.onPageFinished(view, url);
+            bar.setVisibility(View.GONE);
+        }
 
-        // isi url
-        webViewSaya.loadUrl("mycoffee.rf.gd");
+        @Override
+        public void onPageStarted(WebView view, String url, Bitmap favicon) {
+            super.onPageStarted(view, url, favicon);
+        }
 
-        // set view
-        setContentView(webViewSaya);
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            view.loadUrl(url);
+            return super.shouldOverrideUrlLoading(view, url);
+        }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if((keyCode==KeyEvent.KEYCODE_BACK) && webView.canGoBack()){
+            webView.goBack();
+            return true;
+        }
+
+        return super.onKeyDown(keyCode, event);
+
+
     }
 }
